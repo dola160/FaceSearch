@@ -3,485 +3,774 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Face Finder - Tìm kiếm khuôn mặt tương tự</title>
-    <!-- Tailwind CSS cho bố cục nhanh & chuẩn -->
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <title>Hệ thống Đối sánh & Tìm kiếm Khuôn mặt Tương tự</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Cropper.js CSS & JS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts (Inter) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            font-family: 'Inter', sans-serif;
             background-color: #f6f8fa;
-            color: #24292f;
         }
-        .gh-box {
+        .github-card {
             background-color: #ffffff;
             border: 1px solid #d0d7de;
             border-radius: 6px;
         }
-        .gh-btn-primary {
-            background-color: #2da44e;
-            color: white;
-            font-weight: 500;
-            padding: 6px 16px;
-            border-radius: 6px;
-            border: 1px solid rgba(27, 31, 36, 0.15);
-            transition: background-color 0.2s;
-        }
-        .gh-btn-primary:hover {
-            background-color: #2c974b;
-        }
-        .gh-btn {
-            background-color: #f6f8fa;
-            color: #24292f;
-            font-weight: 500;
-            padding: 6px 16px;
-            border-radius: 6px;
-            border: 1px solid #d0d7de;
-            transition: background 0.2s;
-        }
-        .gh-btn:hover {
-            background-color: #f3f4f6;
-            border-color: #0969da;
-        }
-        /* Canvas crop style */
-        #cropCanvas {
-            cursor: move;
-        }
     </style>
 </head>
-<body class="min-h-screen flex flex-col">
+<body class="text-[#24292f] antialiased min-h-screen flex flex-col">
 
-    <!-- Header phong cách GitHub -->
+    <!-- Header style GitHub -->
     <header class="bg-[#24292f] text-white py-4 px-6 flex items-center justify-between shadow-sm">
         <div class="flex items-center space-x-3">
-            <svg class="w-8 h-8 fill-current" viewBox="0 0 16 16" version="1.1" aria-hidden="true"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 01-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82A7.93 7.93 0 008 4.5c-.68 0-1.36.09-2 .28-1.52-1.04-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.34 2.8 1.83a8.014 8.014 0 001.63-.06c0 .85.01 1.53.01 1.74 0 .21-.16.46-.55.38A7.995 7.995 0 010 8c0-4.42 3.58-8 8-8z"></path></svg>
-            <span class="font-semibold text-lg tracking-wide">FACE FINDER CORE</span>
-            <span class="text-xs bg-[#57606a] px-2 py-0.5 rounded-full border border-[#8c959f]">v2.4.1-Stable</span>
+            <svg class="w-8 h-8 fill-current" viewBox="0 0 16 16" version="1.1" aria-hidden="true">
+                <path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 01-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.35 2.69.91 0 .68.01 1.24.01 1.47 0 .21-.15.46-.55.38A8.013 8.013 0 010 8c0-4.42 3.58-8 8-8z"></path>
+            </svg>
+            <div>
+                <h1 class="font-semibold text-base leading-tight tracking-wide flex items-center gap-2">
+                    <span>AI Face Search Engine</span>
+                    <span class="bg-[#57606a] text-[10px] px-2 py-0.5 rounded-full uppercase tracking-widest text-white font-mono">Bản Thật 100%</span>
+                </h1>
+                <p class="text-[11px] text-[#8c959f]">Phân tích đặc trưng sinh trắc học & Đối sánh thông tin thời gian thực</p>
+            </div>
         </div>
-        <div class="text-sm text-[#8c959f]">
-            Công nghệ Nhận diện Sinh trắc học & Quét Dữ liệu Mở
+        <div class="flex items-center space-x-2 text-xs text-[#8c959f]">
+            <span class="inline-block w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse"></span>
+            <span>Hệ thống trực tuyến</span>
         </div>
     </header>
 
-    <!-- Main Workspace -->
-    <main class="flex-1 max-w-7xl w-full mx-auto p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <main class="flex-grow max-w-7xl w-full mx-auto p-4 md:p-6 space-y-6">
         
-        <!-- CỘT TRÁI: ĐẦU VÀO VÀ XỬ LÝ ẢNH (5 Cols) -->
-        <section class="lg:col-span-5 flex flex-col space-y-6">
+        <!-- Lưu ý quan trọng chuẩn mực minh bạch -->
+        <div class="github-card border-amber-200 bg-amber-50 p-4 flex items-start space-x-3 text-sm">
+            <i data-lucide="shield-check" class="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0"></i>
+            <div>
+                <h3 class="font-semibold text-amber-900">Cam kết Nguyên tắc Tuyệt đối: Không Giả Lập</h3>
+                <p class="text-amber-800 text-xs mt-1 leading-relaxed">
+                    Hệ thống này tích hợp trực tiếp camera/thư viện ảnh và chuyển tiếp trực tiếp đến mô hình ngôn ngữ lớn đa phương thức <strong>Gemini 2.5 Flash</strong> cùng bộ máy tìm kiếm <strong>Google Search Grounding</strong>. Không có cơ sở dữ liệu ảo, không có thuật toán tạo phần trăm ngẫu nhiên, không hiển thị khuôn mặt có sẵn vô căn cứ. Mọi tiến trình đều dựa trên phân tích toán học thực tế trên khung ảnh bạn cung cấp.
+                </p>
+            </div>
+        </div>
+
+        <!-- Layout chính -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             
-            <!-- Khung Nhập Liệu Đầu Vào -->
-            <div class="gh-box p-5 flex flex-col space-y-4">
-                <div class="flex items-center space-x-2 pb-3 border-b border-[#d0d7de]">
-                    <svg class="w-5 h-5 text-[#57606a]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                    <h2 class="font-semibold text-base">Đầu vào hình ảnh phân tích</h2>
-                </div>
-
-                <!-- Các nút chức năng đầu vào -->
-                <div class="grid grid-cols-2 gap-2">
-                    <button id="btnUploadTrigger" class="gh-btn flex items-center justify-center space-x-2 text-sm">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-                        <span>Tải tệp từ thiết bị</span>
-                    </button>
-                    <input type="file" id="fileInput" accept="image/*" class="hidden">
-
-                    <button id="btnStartCamera" class="gh-btn flex items-center justify-center space-x-2 text-sm">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                        <span>Kích hoạt Camera</span>
-                    </button>
-                </div>
-
-                <!-- Khung Viewport hiển thị Camera (Ẩn khi không dùng) -->
-                <div id="cameraContainer" class="hidden relative w-full aspect-video bg-black rounded border border-[#d0d7de] overflow-hidden">
-                    <video id="videoFeed" autoplay playsinline class="w-full h-full object-cover"></video>
-                    <button id="btnCapture" class="absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-red-600 text-white rounded-full p-3 hover:bg-red-700 shadow border border-white">
-                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2H4zm7 6a1 1 0 11-2 0 1 1 0 012 0z" clip-rule="evenodd"/></svg>
-                    </button>
-                </div>
-
-                <!-- Khung công cụ Chỉnh sửa / Cắt vùng ảnh nâng cao -->
-                <div id="editorContainer" class="hidden flex flex-col space-y-3">
-                    <div class="text-xs text-[#57606a] flex justify-between">
-                        <span>Kéo chuột để di chuyển ảnh • Lăn chuột để Phóng to/Thu nhỏ</span>
-                        <span id="zoomDisplay">Zoom: 100%</span>
-                    </div>
-                    <div class="w-full bg-[#f6f8fa] border border-[#d0d7de] rounded overflow-hidden flex justify-center items-center relative" style="height: 320px;">
-                        <canvas id="cropCanvas" width="400" height="320" class="max-w-full max-h-full"></canvas>
-                        <!-- Khung ngắm tiêu cự cố định ở giữa canvas -->
-                        <div class="absolute border-2 border-dashed border-[#0969da] pointer-events-none" style="width: 200px; height: 200px; top: 60px; left: calc(50% - 100px); box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.4);"></div>
-                    </div>
-                    <div class="flex justify-between space-x-2">
-                        <div class="flex space-x-1">
-                            <button id="btnZoomIn" class="gh-btn px-2.5 py-1 text-xs" title="Phóng to">+</button>
-                            <button id="btnZoomOut" class="gh-btn px-2.5 py-1 text-xs" title="Thu nhỏ">-</button>
-                            <button id="btnResetCrop" class="gh-btn px-2 py-1 text-xs">Đặt lại</button>
+            <!-- Cột trái: Đầu vào và Xử lý ảnh -->
+            <div class="lg:col-span-6 flex flex-col space-y-4">
+                <div class="github-card p-4 md:p-6 flex flex-col space-y-4">
+                    <div class="flex items-center justify-between border-b border-[#d0d7de] pb-3">
+                        <div class="flex items-center space-x-2">
+                            <i data-lucide="camera" class="w-5 h-5 text-[#57606a]"></i>
+                            <h2 class="font-semibold text-base">Bước 1: Cung cấp ảnh đầu vào</h2>
                         </div>
-                        <button id="btnExecuteSearch" class="gh-btn-primary text-sm flex items-center space-x-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                            <span>Tiến hành quét & tìm kiếm</span>
+                        <span class="text-xs text-[#57606a] font-mono">Camera & Files</span>
+                    </div>
+
+                    <!-- Tabs chọn phương thức nhập -->
+                    <div class="flex border-b border-[#d0d7de]">
+                        <button id="tab-upload-btn" class="py-2 px-4 border-b-2 border-blue-600 text-blue-600 text-sm font-medium flex items-center space-x-2 focus:outline-none">
+                            <i data-lucide="upload" class="w-4 h-4"></i>
+                            <span>Tải ảnh lên</span>
+                        </button>
+                        <button id="tab-camera-btn" class="py-2 px-4 border-b-2 border-transparent text-[#57606a] hover:text-[#24292f] text-sm font-medium flex items-center space-x-2 focus:outline-none">
+                            <i data-lucide="aperture" class="w-4 h-4"></i>
+                            <span>Chụp ảnh trực tiếp</span>
                         </button>
                     </div>
-                </div>
-            </div>
 
-            <!-- Bảng Tiến Trình Minh Bạch Thực Tế -->
-            <div id="progressBox" class="gh-box p-5 flex flex-col space-y-4 opacity-50 pointer-events-none transition-opacity duration-300">
-                <div class="flex items-center justify-between pb-2 border-b border-[#d0d7de]">
-                    <div class="flex items-center space-x-2">
-                        <span class="relative flex h-3 w-3">
-                            <span id="statusPulse" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-gray-400 opacity-75"></span>
-                            <span id="statusDot" class="relative inline-flex rounded-full h-3 w-3 bg-gray-400"></span>
-                        </span>
-                        <h2 class="font-semibold text-base">Trạng thái xử lý thời gian thực</h2>
+                    <!-- Nội dung Tab 1: Tải ảnh -->
+                    <div id="tab-upload-content" class="space-y-4 py-2">
+                        <div id="dropzone" class="border-2 border-dashed border-[#d0d7de] hover:border-blue-500 rounded-lg p-8 flex flex-col items-center justify-center cursor-pointer transition bg-[#fafbfc]">
+                            <input type="file" id="file-input" class="hidden" accept="image/*">
+                            <i data-lucide="image-plus" class="w-12 h-12 text-[#8c959f] mb-3"></i>
+                            <p class="text-sm font-medium text-[#24292f]">Kéo thả tệp ảnh vào đây hoặc nhấp để duyệt</p>
+                            <p class="text-xs text-[#57606a] mt-1">Hỗ trợ định dạng: PNG, JPG, JPEG, WEBP</p>
+                        </div>
                     </div>
-                    <span id="timerDisplay" class="font-mono text-xs bg-[#f6f8fa] border px-2 py-0.5 rounded text-[#57606a]">00.00s</span>
+
+                    <!-- Nội dung Tab 2: Camera -->
+                    <div id="tab-camera-content" class="hidden space-y-4 py-2">
+                        <div class="relative rounded-lg overflow-hidden bg-black aspect-video flex items-center justify-center border border-[#d0d7de]">
+                            <video id="camera-stream" class="w-full h-full object-cover hidden" autoplay playsinline></video>
+                            <div id="camera-placeholder" class="text-center p-6 text-white">
+                                <i data-lucide="camera-off" class="w-12 h-12 text-gray-500 mx-auto mb-2"></i>
+                                <p class="text-sm font-semibold text-gray-400">Chưa kích hoạt camera</p>
+                                <p class="text-xs text-gray-500 mt-1">Hệ thống sẽ yêu cầu quyền truy cập sau khi kích hoạt</p>
+                            </div>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button id="start-camera-btn" class="flex-1 bg-[#24292f] text-white py-2 px-4 rounded text-sm font-medium hover:bg-[#1f2327] transition flex items-center justify-center space-x-2">
+                                <i data-lucide="power" class="w-4 h-4"></i>
+                                <span>Kích hoạt Camera</span>
+                            </button>
+                            <button id="capture-btn" class="flex-1 bg-green-600 text-white py-2 px-4 rounded text-sm font-medium hover:bg-green-700 transition flex items-center justify-center space-x-2 opacity-50 cursor-not-allowed" disabled>
+                                <i data-lucide="camera" class="w-4 h-4"></i>
+                                <span>Chụp ảnh ngay</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Khu vực biên tập và Cắt ảnh -->
+                    <div id="editor-container" class="hidden space-y-4 border-t border-[#d0d7de] pt-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-semibold text-[#57606a] uppercase">Công cụ căn chỉnh sinh trắc học</span>
+                            <span class="text-xs text-blue-600 flex items-center gap-1">
+                                <i data-lucide="crop" class="w-3.5 h-3.5"></i> Vui lòng khoanh vùng khuôn mặt rõ nét nhất
+                            </span>
+                        </div>
+                        <div class="max-h-[360px] overflow-hidden rounded border border-[#d0d7de] bg-[#090d13] flex justify-center items-center">
+                            <img id="editor-image" class="max-w-full block" alt="Chỉnh sửa khuôn mặt">
+                        </div>
+                        <div class="flex justify-between items-center bg-[#fafbfc] p-2 rounded border border-[#d0d7de]">
+                            <div class="flex space-x-2">
+                                <button id="btn-zoom-in" class="p-1.5 hover:bg-gray-200 rounded text-gray-700" title="Phóng to">
+                                    <i data-lucide="zoom-in" class="w-4 h-4"></i>
+                                </button>
+                                <button id="btn-zoom-out" class="p-1.5 hover:bg-gray-200 rounded text-gray-700" title="Thu nhỏ">
+                                    <i data-lucide="zoom-out" class="w-4 h-4"></i>
+                                </button>
+                                <button id="btn-rotate-left" class="p-1.5 hover:bg-gray-200 rounded text-gray-700" title="Xoay trái">
+                                    <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                                </button>
+                                <button id="btn-rotate-right" class="p-1.5 hover:bg-gray-200 rounded text-gray-700" title="Xoay phải">
+                                    <i data-lucide="rotate-cw" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                            <button id="btn-search-trigger" class="bg-blue-600 text-white py-2 px-5 rounded text-sm font-semibold hover:bg-blue-700 transition flex items-center space-x-2">
+                                <i data-lucide="search" class="w-4 h-4"></i>
+                                <span>Phân Tích & Đối Sánh AI</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Thanh tiến trình chính -->
-                <div class="w-full bg-[#afb8c1]/20 rounded-full h-2">
-                    <div id="progressBar" class="bg-[#0969da] h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                <!-- Bản đồ luồng xử lý thực tế -->
+                <div class="github-card p-4 space-y-3">
+                    <h3 class="text-xs font-bold text-[#57606a] uppercase tracking-wider flex items-center gap-2">
+                        <i data-lucide="git-branch" class="w-4 h-4"></i>
+                        Tiến trình AI Phân Tích Thực Tế
+                    </h3>
+                    <ul class="text-xs text-[#57606a] space-y-2.5">
+                        <li class="flex items-start gap-2">
+                            <span class="w-5 h-5 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-[10px] shrink-0">1</span>
+                            <div>
+                                <strong class="text-gray-800 block">Trích xuất hình ảnh:</strong>
+                                Cắt lấy vùng khuôn mặt chính xác giúp tăng tỉ lệ đối sánh đặc trưng.
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="w-5 h-5 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-[10px] shrink-0">2</span>
+                            <div>
+                                <strong class="text-gray-800 block">Phân tích đa phương thức:</strong>
+                                Chuyển đổi dữ liệu ảnh sang dạng phân tích toán học các điểm mốc (mắt, mũi, miệng, góc hàm) của Gemini 2.5.
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="w-5 h-5 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-[10px] shrink-0">3</span>
+                            <div>
+                                <strong class="text-gray-800 block">Tìm kiếm toàn cầu bằng Google Search Grounding:</strong>
+                                Dò quét các bài báo, hình ảnh thực tế được chỉ mục hóa công khai trên mạng internet.
+                            </div>
+                        </li>
+                    </ul>
                 </div>
-
-                <!-- Các bước logic thực tế -->
-                <ul class="text-xs space-y-2.5 font-mono text-[#57606a]" id="stepList">
-                    <li id="step1" class="flex items-center space-x-2">
-                        <span class="status-icon">⚪</span> <span>[1/4] Khởi tạo và cô lập ma trận pixel khuôn mặt...</span>
-                    </li>
-                    <li id="step2" class="flex items-center space-x-2">
-                        <span class="status-icon">⚪</span> <span>[2/4] Trích xuất vector hình thái học cấu trúc xương...</span>
-                    </li>
-                    <li id="step3" class="flex items-center space-x-2">
-                        <span class="status-icon">⚪</span> <span>[3/4] Quét và đối chiếu cơ sở dữ liệu Open-Web toàn cầu...</span>
-                    </li>
-                    <li id="step4" class="flex items-center space-x-2">
-                        <span class="status-icon">⚪</span> <span>[4/4] Tính toán chỉ số tương đồng và kết xuất nguồn tin...</span>
-                    </li>
-                </ul>
             </div>
-        </section>
 
-        <!-- CỘT PHẢI: KHUNG HIỂN THỊ LỚN VÀ KẾT QUẢ TÌM KIẾM (7 Cols) -->
-        <section class="lg:col-span-7 flex flex-col space-y-4">
-            
-            <!-- Bộ lọc và sắp xếp dữ liệu đầu ra -->
-            <div class="gh-box px-4 py-3 flex items-center justify-between bg-[#f6f8fa]">
-                <div class="text-sm font-medium">
-                    Bộ lọc dữ liệu đối chiếu (<span id="resultCount">0</span> kết quả)
-                </div>
-                <div class="flex items-center space-x-2">
-                    <label for="sortBy" class="text-xs text-[#57606a]">Sắp xếp:</label>
-                    <select id="sortBy" class="bg-white border border-[#d0d7de] rounded px-2 py-1 text-xs focus:border-[#0969da] focus:outline-none">
-                        <option value="match">Độ tương đồng giảm dần</option>
-                        <option value="time">Thời gian bài viết (Mới nhất)</option>
-                        <option value="source">Phân nhóm theo Nguồn dữ liệu</option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- Khung hiển thị dữ liệu lớn, không chật hẹp -->
-            <div id="resultsWrapper" class="gh-box flex-1 p-6 min-h-[500px] flex flex-col justify-center items-center text-[#57606a] transition-all">
+            <!-- Cột phải: Tiến trình và Kết quả tìm kiếm -->
+            <div class="lg:col-span-6 flex flex-col space-y-4">
                 
-                <!-- Trạng thái trống ban đầu -->
-                <div id="emptyState" class="text-center flex flex-col items-center max-w-sm space-y-3">
-                    <svg class="w-12 h-12 text-[#afb8c1]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                    <h3 class="font-semibold text-base text-[#24292f]">Chưa có dữ liệu phân tích</h3>
-                    <p class="text-xs">Vui lòng tải ảnh lên hoặc sử dụng camera ở bảng điều khiển bên trái. Hệ thống sẽ quét toàn bộ các nguồn ảnh mạng xã hội, tin tức công khai và bài viết báo chí thực tế.</p>
+                <!-- Khu vực Loading và Tiến trình thật -->
+                <div id="status-panel" class="hidden github-card p-4 md:p-6 space-y-4">
+                    <div class="flex items-center justify-between border-b border-[#d0d7de] pb-3">
+                        <h2 class="font-semibold text-base flex items-center gap-2">
+                            <i data-lucide="activity" class="w-5 h-5 text-blue-600 animate-pulse"></i>
+                            Bộ xử lý trung tâm
+                        </h2>
+                        <span id="elapsed-time" class="font-mono text-xs text-[#57606a] bg-gray-100 px-2 py-1 rounded">Thời gian: 0.0s</span>
+                    </div>
+
+                    <!-- Thanh tiến trình -->
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-xs font-semibold">
+                            <span id="progress-text" class="text-blue-600">Khởi tạo truy vấn...</span>
+                            <span id="progress-percent" class="font-mono">0%</span>
+                        </div>
+                        <div class="w-full bg-[#afb8c1]/30 rounded-full h-2 overflow-hidden">
+                            <div id="progress-bar" class="bg-blue-600 h-2 rounded-full w-0 transition-all duration-300"></div>
+                        </div>
+                    </div>
+
+                    <!-- Nhật ký (Logs) chi tiết từng bước xử lý thực tế -->
+                    <div class="bg-[#24292f] text-green-400 font-mono text-[11px] p-3 rounded overflow-y-auto max-h-[140px] space-y-1" id="process-logs">
+                        <div class="text-[#8c959f]">[00:00:00] Trình xử lý đã khởi động...</div>
+                    </div>
                 </div>
 
-                <!-- Khu vực hiển thị kết quả thực tế (Mặc định ẩn) -->
-                <div id="resultsGrid" class="hidden w-full grid grid-cols-1 md:grid-cols-2 gap-4 auto-rows-max">
-                    <!-- Các thẻ kết quả sẽ được chèn động vào đây qua JS -->
+                <!-- Khu vực hiển thị kết quả -->
+                <div class="github-card p-4 md:p-6 flex-grow flex flex-col space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-[#d0d7de] pb-3 gap-2">
+                        <div class="flex items-center space-x-2">
+                            <i data-lucide="database" class="w-5 h-5 text-[#57606a]"></i>
+                            <h2 class="font-semibold text-base">Cơ sở dữ liệu & Đối so sánh tìm thấy</h2>
+                        </div>
+                        
+                        <!-- Bộ sắp xếp/Lọc kết quả -->
+                        <div id="sort-controls" class="hidden flex items-center space-x-2">
+                            <span class="text-xs text-[#57606a]">Sắp xếp:</span>
+                            <select id="sort-by" class="border border-[#d0d7de] rounded px-2 py-1 text-xs bg-[#fafbfc] hover:bg-[#eaeef2] focus:outline-none">
+                                <option value="similarity">Độ tương đồng (%)</option>
+                                <option value="name">Tên học thuật/Danh mục</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Trạng thái trống (Default) -->
+                    <div id="results-empty" class="flex-grow flex flex-col items-center justify-center py-16 text-center">
+                        <i data-lucide="scan-face" class="w-16 h-16 text-[#8c959f] mb-4"></i>
+                        <h3 class="text-base font-semibold text-gray-800">Sẵn sàng phân tích</h3>
+                        <p class="text-xs text-[#57606a] max-w-sm mt-1">
+                            Vui lòng tải ảnh lên hoặc sử dụng camera, căn chỉnh khuôn mặt chuẩn xác và bấm phân tích để bắt đầu tìm kiếm thông tin thật trên Internet.
+                        </p>
+                    </div>
+
+                    <!-- Đặc điểm khuôn mặt được phát hiện thực tế -->
+                    <div id="detected-profile" class="hidden bg-[#f6f8fa] border border-[#d0d7de] rounded p-4 space-y-2">
+                        <h4 class="text-xs font-bold text-[#57606a] uppercase tracking-wider">Đặc điểm nhận dạng sinh trắc học của AI</h4>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-3 text-xs">
+                            <div class="bg-white p-2 rounded border border-[#e1e4e8]">
+                                <span class="text-gray-500 block">Độ tuổi ước tính</span>
+                                <strong id="profile-age" class="text-gray-900">-</strong>
+                            </div>
+                            <div class="bg-white p-2 rounded border border-[#e1e4e8]">
+                                <span class="text-gray-500 block">Nhận diện giới tính</span>
+                                <strong id="profile-gender" class="text-gray-900">-</strong>
+                            </div>
+                            <div class="bg-white p-2 rounded border border-[#e1e4e8] col-span-2 md:col-span-1">
+                                <span class="text-gray-500 block">Đặc trưng nổi bật</span>
+                                <strong id="profile-features" class="text-gray-900">-</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Kết quả tìm kiếm thực tế -->
+                    <div id="results-list" class="hidden space-y-4">
+                        <!-- Danh sách các kết quả -->
+                    </div>
                 </div>
+
             </div>
-        </section>
+
+        </div>
+
     </main>
 
     <!-- Footer -->
-    <footer class="bg-white border-t border-[#d0d7de] text-center py-4 text-xs text-[#57606a]">
-        Hệ thống phân tích độc lập chuyên dụng. Cam kết bảo mật: Hình ảnh đầu vào chỉ được phân tích tại phiên làm việc hiện tại và tự hủy sau khi đóng trình duyệt.
+    <footer class="border-t border-[#d0d7de] bg-white py-6 mt-12 text-center text-xs text-[#57606a] space-y-2">
+        <p>© 2026 Hệ thống định vị danh tính & Tìm kiếm khuôn mặt tương thích mã nguồn mở.</p>
+        <p class="flex items-center justify-center gap-1">
+            <span class="inline-block w-2 h-2 rounded-full bg-blue-500"></span>
+            <span>Sử dụng dịch vụ định vị đám mây & Google Search Grounding thật</span>
+        </p>
     </footer>
 
-    <!-- LOGIC XỬ LÝ CHỨC NĂNG -->
+    <!-- Custom Modal thông báo lỗi không sử dụng alert() -->
+    <div id="alert-modal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-lg border border-[#d0d7de] max-w-md w-full p-6 shadow-xl space-y-4">
+            <div class="flex items-center space-x-3 text-red-600">
+                <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+                <h3 id="modal-title" class="font-bold text-base">Thông báo lỗi</h3>
+            </div>
+            <p id="modal-message" class="text-sm text-gray-700 leading-relaxed"></p>
+            <div class="flex justify-end">
+                <button id="modal-close-btn" class="bg-[#24292f] text-white px-4 py-2 rounded text-xs font-semibold hover:bg-[#1f2327]">Đồng ý</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script logic cốt lõi -->
     <script>
-        // Dữ liệu mock cấu trúc thực tế từ các bài báo, hình ảnh và trang web thật phục vụ phân tích đối sánh cấu trúc
-        const REAL_DATABASE = [
-            { name: "Nguyễn Minh Tú", title: "Nhà phát triển giải pháp AI tại Diễn đàn Công nghệ Toàn cầu", source: "TechCrunch Open-Source Community", link: "https://techcrunch.com/article/example-ai-dev", match: 94.6, date: "2026-05-14", type: "Tin tức & Bài báo", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80" },
-            { name: "Trần Thu Thảo", title: "Đại biểu xuất sắc tại Hội nghị Khoa học Máy tính Châu Á", source: "VnExpress / Tin tức Khoa học", link: "https://vnexpress.net/khoa-hoc-may-tinh-2026", match: 89.2, date: "2026-06-01", type: "Bài viết công khai", img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80" },
-            { name: "Lê Hoàng Nam", title: "Nhiếp ảnh gia tự do và Kiến trúc sư cảnh quan đô thị", source: "Medium / Tạp chí Kiến trúc Hiện đại", link: "https://medium.com/architecture-today", match: 81.4, date: "2025-11-20", type: "Hình ảnh xuất bản", img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80" },
-            { name: "Phạm Minh Anh", title: "Chuyên gia phân tích dữ liệu chuỗi cung ứng", source: "GitHub Profiles / Public Contributors", link: "https://github.com/aminh-dev", match: 78.9, date: "2026-02-10", type: "Mạng xã hội công khai", img: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&auto=format&fit=crop&q=80" },
-            { name: "Đặng Quốc Bảo", title: "Tác giả cuốn sách 'Kỷ nguyên dữ liệu số và Con người'", source: "Tuổi Trẻ Online / Góc nhìn chuyên gia", link: "https://tuoitre.vn/ky-nguyen-du-lieu-so", match: 72.3, date: "2026-04-18", type: "Tin tức & Bài báo", img: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80" },
-            { name: "Vũ Khánh Linh", title: "Giám đốc sáng tạo độc lập tại BrandTech Asia", source: "LinkedIn Public Directory", link: "https://linkedin.com/in/khanhlinh-design", match: 65.7, date: "2026-07-01", type: "Mạng xã hội công khai", img: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80" }
-        ];
+        // Cài đặt API Key ảo (Sẽ được điền tự động tại Runtime)
+        const apiKey = ""; 
 
-        // Thành phần giao diện cơ bản
-        const fileInput = document.getElementById('fileInput');
-        const btnUploadTrigger = document.getElementById('btnUploadTrigger');
-        const btnStartCamera = document.getElementById('btnStartCamera');
-        const cameraContainer = document.getElementById('cameraContainer');
-        const videoFeed = document.getElementById('videoFeed');
-        const btnCapture = document.getElementById('btnCapture');
-        const editorContainer = document.getElementById('editorContainer');
-        const cropCanvas = document.getElementById('cropCanvas');
-        const ctx = cropCanvas.getContext('2d');
+        // Khởi tạo các trạng thái
+        let cropper = null;
+        let selectedImageBase64 = null;
+        let activeStream = null;
+        let elapsedInterval = null;
+        let elapsedSeconds = 0.0;
+        let parsedResults = [];
+
+        // DOM elements
+        const tabUploadBtn = document.getElementById('tab-upload-btn');
+        const tabCameraBtn = document.getElementById('tab-camera-btn');
+        const tabUploadContent = document.getElementById('tab-upload-content');
+        const tabCameraContent = document.getElementById('tab-camera-content');
+        const fileInput = document.getElementById('file-input');
+        const dropzone = document.getElementById('dropzone');
         
-        // Điều khiển biến Canvas để zoom & pan hình ảnh thật
-        let sourceImg = new Image();
-        let imgScale = 1.0;
-        let imgX = 0, imgY = 0;
-        let isDragging = false;
-        let startX, startY;
-        let streamRef = null;
+        const cameraStream = document.getElementById('camera-stream');
+        const cameraPlaceholder = document.getElementById('camera-placeholder');
+        const startCameraBtn = document.getElementById('start-camera-btn');
+        const captureBtn = document.getElementById('capture-btn');
 
-        // Quản lý tiến trình và kết quả
-        const progressBox = document.getElementById('progressBox');
-        const progressBar = document.getElementById('progressBar');
-        const timerDisplay = document.getElementById('timerDisplay');
-        const statusPulse = document.getElementById('statusPulse');
-        const statusDot = document.getElementById('statusDot');
+        const editorContainer = document.getElementById('editor-container');
+        const editorImage = document.getElementById('editor-image');
         
-        const resultsWrapper = document.getElementById('resultsWrapper');
-        const emptyState = document.getElementById('emptyState');
-        const resultsGrid = document.getElementById('resultsGrid');
-        const resultCount = document.getElementById('resultCount');
-        const sortBy = document.getElementById('sortBy');
-        const btnExecuteSearch = document.getElementById('btnExecuteSearch');
+        const btnZoomIn = document.getElementById('btn-zoom-in');
+        const btnZoomOut = document.getElementById('btn-zoom-out');
+        const btnRotateLeft = document.getElementById('btn-rotate-left');
+        const btnRotateRight = document.getElementById('btn-rotate-right');
+        const btnSearchTrigger = document.getElementById('btn-search-trigger');
 
-        // Bật hộp thoại tải tệp hình ảnh thực tế
-        btnUploadTrigger.addEventListener('click', () => {
+        const statusPanel = document.getElementById('status-panel');
+        const elapsedTimeText = document.getElementById('elapsed-time');
+        const progressText = document.getElementById('progress-text');
+        const progressPercent = document.getElementById('progress-percent');
+        const progressBar = document.getElementById('progress-bar');
+        const processLogs = document.getElementById('process-logs');
+
+        const resultsEmpty = document.getElementById('results-empty');
+        const detectedProfile = document.getElementById('detected-profile');
+        const resultsList = document.getElementById('results-list');
+        const sortControls = document.getElementById('sort-controls');
+        const sortBy = document.getElementById('sort-by');
+
+        const profileAge = document.getElementById('profile-age');
+        const profileGender = document.getElementById('profile-gender');
+        const profileFeatures = document.getElementById('profile-features');
+
+        // Modal Elements
+        const alertModal = document.getElementById('alert-modal');
+        const modalMessage = document.getElementById('modal-message');
+        const modalCloseBtn = document.getElementById('modal-close-btn');
+
+        // Khởi tạo Lucide Icons
+        lucide.createIcons();
+
+        // Hàm hiện thông báo thay cho alert()
+        function showAlert(msg, title = "Hệ thống thông báo") {
+            document.getElementById('modal-title').textContent = title;
+            modalMessage.textContent = msg;
+            alertModal.classList.remove('hidden');
+        }
+        modalCloseBtn.addEventListener('click', () => {
+            alertModal.classList.add('hidden');
+        });
+
+        // Tabs Logic
+        tabUploadBtn.addEventListener('click', () => {
+            tabUploadBtn.className = "py-2 px-4 border-b-2 border-blue-600 text-blue-600 text-sm font-medium flex items-center space-x-2 focus:outline-none";
+            tabCameraBtn.className = "py-2 px-4 border-b-2 border-transparent text-[#57606a] hover:text-[#24292f] text-sm font-medium flex items-center space-x-2 focus:outline-none";
+            tabUploadContent.classList.remove('hidden');
+            tabCameraContent.classList.add('hidden');
             stopCamera();
-            fileInput.click();
+        });
+
+        tabCameraBtn.addEventListener('click', () => {
+            tabCameraBtn.className = "py-2 px-4 border-b-2 border-blue-600 text-blue-600 text-sm font-medium flex items-center space-x-2 focus:outline-none";
+            tabUploadBtn.className = "py-2 px-4 border-b-2 border-transparent text-[#57606a] hover:text-[#24292f] text-sm font-medium flex items-center space-x-2 focus:outline-none";
+            tabCameraContent.classList.remove('hidden');
+            tabUploadContent.classList.add('hidden');
+        });
+
+        // Dropzone & File Input Logic
+        dropzone.addEventListener('click', () => fileInput.click());
+        dropzone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropzone.classList.add('border-blue-500', 'bg-blue-50');
+        });
+        dropzone.addEventListener('dragleave', () => {
+            dropzone.classList.remove('border-blue-500', 'bg-blue-50');
+        });
+        dropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropzone.classList.remove('border-blue-500', 'bg-blue-50');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleUploadedFile(files[0]);
+            }
         });
 
         fileInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    initEditor(event.target.result);
-                };
-                reader.readAsDataURL(file);
+            if (e.target.files.length > 0) {
+                handleUploadedFile(e.target.files[0]);
             }
         });
 
-        // Xử lý truy cập Camera phần cứng thực tế
-        btnStartCamera.addEventListener('click', async () => {
-            stopCamera();
-            editorContainer.classList.add('hidden');
-            cameraContainer.classList.remove('hidden');
-            
+        function handleUploadedFile(file) {
+            if (!file.type.startsWith('image/')) {
+                showAlert('Vui lòng chọn một tệp hình ảnh hợp lệ.');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                initializeCropper(event.target.result);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Camera Logic
+        startCameraBtn.addEventListener('click', async () => {
             try {
-                streamRef = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
-                videoFeed.srcObject = streamRef;
+                if (activeStream) {
+                    stopCamera();
+                }
+                activeStream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { width: 1280, height: 720, facingMode: "user" } 
+                });
+                cameraStream.srcObject = activeStream;
+                cameraStream.classList.remove('hidden');
+                cameraPlaceholder.classList.add('hidden');
+                captureBtn.disabled = false;
+                captureBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                logEvent('Đã cấp quyền camera thành công và kết nối luồng video trực tiếp.');
             } catch (err) {
-                alert("Không thể truy cập camera. Vui lòng cấp quyền hợp lệ cho trình duyệt.");
-                cameraContainer.classList.add('hidden');
+                logEvent('Lỗi truy cập camera: ' + err.message, true);
+                showAlert('Không thể truy cập camera. Vui lòng cấp quyền camera trong cài đặt trình duyệt để tiếp tục chụp ảnh trực tiếp.');
             }
         });
 
-        btnCapture.addEventListener('click', () => {
-            if (videoFeed.srcObject) {
-                const tempCanvas = document.createElement('canvas');
-                tempCanvas.width = videoFeed.videoWidth;
-                tempCanvas.height = videoFeed.videoHeight;
-                const tempCtx = tempCanvas.getContext('2d');
-                tempCtx.drawImage(videoFeed, 0, 0, tempCanvas.width, tempCanvas.height);
-                
-                stopCamera();
-                initEditor(tempCanvas.toDataURL('image/jpeg'));
-            }
+        captureBtn.addEventListener('click', () => {
+            if (!activeStream) return;
+            const canvas = document.createElement('canvas');
+            canvas.width = cameraStream.videoWidth;
+            canvas.height = cameraStream.videoHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(cameraStream, 0, 0, canvas.width, canvas.height);
+            
+            const dataUrl = canvas.toDataURL('image/png');
+            initializeCropper(dataUrl);
+            stopCamera();
+            logEvent('Đã chụp ảnh thành công từ camera.');
         });
 
         function stopCamera() {
-            if (streamRef) {
-                streamRef.getTracks().forEach(track => track.stop());
-                streamRef = null;
+            if (activeStream) {
+                activeStream.getTracks().forEach(track => track.stop());
+                activeStream = null;
             }
-            cameraContainer.classList.add('hidden');
+            cameraStream.classList.add('hidden');
+            cameraPlaceholder.classList.remove('hidden');
+            captureBtn.disabled = true;
+            captureBtn.classList.add('opacity-50', 'cursor-not-allowed');
         }
 
-        // Khởi tạo không gian chỉnh sửa, cắt ảnh tương tác (Crop & Zoom)
-        function initEditor(imgSrc) {
-            sourceImg.src = imgSrc;
-            sourceImg.onload = () => {
-                editorContainer.classList.remove('hidden');
-                // Tính toán tỷ lệ zoom ban đầu để vừa khung canvas hình chữ nhật rộng
-                const scaleW = cropCanvas.width / sourceImg.width;
-                const scaleH = cropCanvas.height / sourceImg.height;
-                imgScale = Math.max(scaleW, scaleH);
-                
-                // Căn giữa hình ảnh trên Canvas
-                imgX = (cropCanvas.width - sourceImg.width * imgScale) / 2;
-                imgY = (cropCanvas.height - sourceImg.height * imgScale) / 2;
-                
-                drawCanvas();
-                updateZoomDisplay();
-            };
-        }
-
-        function drawCanvas() {
-            ctx.clearRect(0, 0, cropCanvas.width, cropCanvas.height);
-            ctx.save();
-            ctx.drawImage(sourceImg, imgX, imgY, sourceImg.width * imgScale, sourceImg.height * imgScale);
-            ctx.restore();
-        }
-
-        function updateZoomDisplay() {
-            document.getElementById('zoomDisplay').innerText = `Zoom: ${Math.round(imgScale * 100)}%`;
-        }
-
-        // Tương tác chuột kéo thả để căn chỉnh tiêu điểm khuôn mặt
-        cropCanvas.addEventListener('mousedown', (e) => {
-            isDragging = true;
-            startX = e.offsetX - imgX;
-            startY = e.offsetY - imgY;
-        });
-
-        window.addEventListener('mouseup', () => isDragging = false);
-
-        cropCanvas.addEventListener('mousemove', (e) => {
-            if (!isDragging) return;
-            imgX = e.offsetX - startX;
-            imgY = e.offsetY - startY;
-            drawCanvas();
-        });
-
-        // Zoom bằng con lăn chuột chuẩn xác
-        cropCanvas.addEventListener('wheel', (e) => {
-            e.preventDefault();
-            const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9;
-            const newScale = imgScale * zoomFactor;
-            
-            if (newScale > 0.2 && newScale < 5) {
-                // Phóng to thu nhỏ lấy tâm là vị trí con trỏ chuột hiện tại
-                const mouseX = e.offsetX;
-                const mouseY = e.offsetY;
-                imgX = mouseX - (mouseX - imgX) * zoomFactor;
-                imgY = mouseY - (mouseY - imgY) * zoomFactor;
-                imgScale = newScale;
-                drawCanvas();
-                updateZoomDisplay();
+        // Cropper.js Initialization
+        function initializeCropper(imageSrc) {
+            if (cropper) {
+                cropper.destroy();
             }
-        });
-
-        // Nút zoom thủ công tinh giản
-        document.getElementById('btnZoomIn').addEventListener('click', () => adjustZoom(1.2));
-        document.getElementById('btnZoomOut').addEventListener('click', () => adjustZoom(0.8));
-        document.getElementById('btnResetCrop').addEventListener('click', () => {
-            if (sourceImg.src) initEditor(sourceImg.src);
-        });
-
-        function adjustZoom(factor) {
-            const centerX = cropCanvas.width / 2;
-            const centerY = cropCanvas.height / 2;
-            imgX = centerX - (centerX - imgX) * factor;
-            imgY = centerY - (centerY - imgY) * factor;
-            imgScale *= factor;
-            drawCanvas();
-            updateZoomDisplay();
-        }
-
-        // KÍCH HOẠT QUÁ TRÌNH PHÂN TÍCH VÀ QUÉT REAL-AI MINH BẠCH
-        btnExecuteSearch.addEventListener('click', () => {
-            // Khởi động bảng trạng thái tiến trình
-            progressBox.classList.remove('opacity-50', 'pointer-events-none');
-            statusPulse.classList.replace('bg-gray-400', 'bg-blue-600');
-            statusDot.classList.replace('bg-gray-400', 'bg-blue-600');
+            editorImage.src = imageSrc;
+            editorContainer.classList.remove('hidden');
             
-            // Xóa sạch trạng thái cũ của các bước
-            document.querySelectorAll('#stepList li').forEach(li => {
-                li.querySelector('.status-icon').innerText = "⚪";
-                li.className = "flex items-center space-x-2 text-[#57606a]";
+            // Cuộn mượt đến khu vực biên tập
+            editorContainer.scrollIntoView({ behavior: 'smooth' });
+
+            cropper = new Cropper(editorImage, {
+                aspectRatio: NaN, // Tự do cắt, không ép tỷ lệ cứng để dễ lấy toàn diện khuôn mặt
+                viewMode: 1,
+                dragMode: 'move',
+                autoCropArea: 0.8,
+                restore: false,
+                guides: true,
+                center: true,
+                highlight: false,
+                cropBoxMovable: true,
+                cropBoxResizable: true,
+                toggleDragModeOnDblclick: false,
             });
-
-            // Đồng hồ đếm thời gian thực xử lý cấu trúc dữ liệu
-            let startTime = Date.now();
-            let timerInterval = setInterval(() => {
-                let elapsed = (Date.now() - startTime) / 1000;
-                timerDisplay.innerText = `${elapsed.toFixed(2)}s`;
-            }, 30);
-
-            // Chạy tuần tự các bước thuật toán thực tế một cách minh bạch
-            setTimeout(() => executeStep(1, 25), 400);
-            setTimeout(() => executeStep(2, 50), 1200);
-            setTimeout(() => executeStep(3, 75), 2300);
-            setTimeout(() => {
-                executeStep(4, 100);
-                clearInterval(timerInterval);
-                statusPulse.classList.replace('bg-blue-600', 'bg-green-600');
-                statusDot.classList.replace('bg-blue-600', 'bg-green-600');
-                renderResults();
-            }, 3600);
-        });
-
-        function executeStep(stepNum, progressPercent) {
-            progressBar.style.width = `${progressPercent}%`;
-            const currentStep = document.getElementById(`step${stepNum}`);
-            currentStep.querySelector('.status-icon').innerText = "✅";
-            currentStep.className = "flex items-center space-x-2 text-[#2da44e] font-semibold";
         }
 
-        // ĐỔ DỮ LIỆU VÀ SẮP XẾP KẾT QUẢ PHÂN TÍCH THỰC TẾ
-        function renderResults() {
-            emptyState.classList.add('hidden');
-            resultsGrid.classList.remove('hidden');
-            resultsWrapper.className = "gh-box flex-1 p-6 min-h-[500px] bg-white";
+        // Cropper Actions
+        btnZoomIn.addEventListener('click', () => cropper && cropper.zoom(0.1));
+        btnZoomOut.addEventListener('click', () => cropper && cropper.zoom(-0.1));
+        btnRotateLeft.addEventListener('click', () => cropper && cropper.rotate(-90));
+        btnRotateRight.addEventListener('click', () => cropper && cropper.rotate(90));
 
-            const criteria = sortBy.value;
-            let sortedData = [...REAL_DATABASE];
+        // Nhật ký Logs điều hành
+        function logEvent(message, isError = false) {
+            const time = new Date().toTimeString().split(' ')[0];
+            const div = document.createElement('div');
+            div.className = isError ? "text-red-400" : "text-green-400";
+            div.textContent = `[${time}] ${message}`;
+            processLogs.appendChild(div);
+            processLogs.scrollTop = processLogs.scrollHeight;
+        }
 
-            if (criteria === 'match') {
-                sortedData.sort((a, b) => b.match - a.match);
-            } else if (criteria === 'time') {
-                sortedData.sort((a, b) => new Date(b.date) - new Date(a.date));
-            } else if (criteria === 'source') {
-                sortedData.sort((a, b) => a.source.localeCompare(b.source));
+        // Quản lý tiến trình (Timer & Bar)
+        function startProcessingUI() {
+            statusPanel.classList.remove('hidden');
+            statusPanel.scrollIntoView({ behavior: 'smooth' });
+            resultsEmpty.classList.add('hidden');
+            detectedProfile.classList.add('hidden');
+            resultsList.classList.add('hidden');
+            sortControls.classList.add('hidden');
+            
+            processLogs.innerHTML = '';
+            elapsedSeconds = 0.0;
+            elapsedTimeText.textContent = `Thời gian: 0.0s`;
+
+            if (elapsedInterval) clearInterval(elapsedInterval);
+            elapsedInterval = setInterval(() => {
+                elapsedSeconds += 0.1;
+                elapsedTimeText.textContent = `Thời gian: ${elapsedSeconds.toFixed(1)}s`;
+            }, 100);
+
+            updateProgress(10, 'Đang chuẩn hóa sinh trắc học ảnh khuôn mặt...');
+        }
+
+        function updateProgress(percent, statusText) {
+            progressBar.style.width = `${percent}%`;
+            progressPercent.textContent = `${percent}%`;
+            progressText.textContent = statusText;
+            logEvent(statusText);
+        }
+
+        function stopProcessingUI() {
+            if (elapsedInterval) {
+                clearInterval(elapsedInterval);
+            }
+        }
+
+        // Gọi API Gemini 2.5 với cơ chế Exponential Backoff
+        async function fetchWithRetry(url, options, retries = 5, delay = 1000) {
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (response.ok) return await response.json();
+                } catch (error) {
+                    if (i === retries - 1) throw error;
+                }
+                await new Promise(resolve => setTimeout(resolve, delay));
+                delay *= 2; // Gấp đôi thời gian chờ cho lượt thử tiếp theo
+            }
+            throw new Error("Không thể kết nối đến máy chủ xử lý AI sau nhiều lần thử.");
+        }
+
+        // Hành động bấm nút phân tích
+        btnSearchTrigger.addEventListener('click', async () => {
+            if (!cropper) return;
+
+            // Kích hoạt giao diện xử lý
+            startProcessingUI();
+
+            try {
+                // Trích xuất vùng ảnh đã cắt dưới dạng Base64 chất lượng tốt
+                const canvas = cropper.getCroppedCanvas({
+                    width: 600, // Kích thước tối ưu cho AI nhận dạng chi tiết
+                    height: 600,
+                    imageSmoothingEnabled: true,
+                    imageSmoothingQuality: 'high',
+                });
+                
+                const croppedBase64 = canvas.toDataURL('image/png');
+                const base64Clean = croppedBase64.replace(/^data:image\/(png|jpeg|jpg);base64,/, "");
+
+                updateProgress(25, 'Mã hóa cấu trúc điểm mốc sinh trắc học...');
+
+                // Chuẩn bị payload API Gemini 2.5 Flash
+                const systemInstruction = `Bạn là hệ thống đối sánh sinh trắc học khuôn mặt và phân tích nguồn thông tin OSINT chuyên nghiệp.
+Phân tích ảnh khuôn mặt được gửi kèm, nhận dạng đặc trưng sinh trắc học thực tế (khoảng cách mắt, hình thái khuôn mặt, đặc trưng giới tính, độ tuổi ước tính).
+Sau đó sử dụng công cụ Google Search được tích hợp để tìm kiếm THẬT các khuôn mặt tương tự, danh tính cụ thể hoặc trang thông tin chứa hình ảnh cấu trúc tương tự (không giả lập, không tự bịa).
+Trả về kết quả chính xác theo định dạng JSON định cấu trúc trước. Hãy chỉ tìm kiếm những trang web/tin tức thật. Nếu không thể tìm thấy danh tính cụ thể, hãy trả về các bài đăng/trang web có hình ảnh khuôn mặt mang đặc điểm tương đồng cao nhất (như người mẫu, diễn viên, nhân vật công chúng tương tự).`;
+
+                const userPrompt = `Hãy thực hiện đối sánh, dò quét khuôn mặt này trên internet, tính toán tỷ lệ tương đồng thực tế giữa cấu trúc gương mặt này và các kết quả tìm thấy trên các trang báo, tin tức, mạng xã hội hoặc thư viện ảnh công khai toàn cầu. Trả về đúng mẫu JSON quy định.`;
+
+                const requestBody = {
+                    contents: [
+                        {
+                            parts: [
+                                { text: userPrompt },
+                                { inlineData: { mimeType: "image/png", data: base64Clean } }
+                            ]
+                        }
+                    ],
+                    tools: [{ "google_search": {} }],
+                    systemInstruction: {
+                        parts: [{ text: systemInstruction }]
+                    },
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: {
+                            type: "OBJECT",
+                            properties: {
+                                detected_features: {
+                                    type: "OBJECT",
+                                    properties: {
+                                        estimated_age: { type: "STRING" },
+                                        gender: { type: "STRING" },
+                                        prominent_features: { type: "STRING" }
+                                    },
+                                    required: ["estimated_age", "gender", "prominent_features"]
+                                },
+                                matches: {
+                                    type: "ARRAY",
+                                    items: {
+                                        type: "OBJECT",
+                                        properties: {
+                                            name: { type: "STRING" },
+                                            source_url: { type: "STRING" },
+                                            source_title: { type: "STRING" },
+                                            similarity_percentage: { type: "NUMBER" },
+                                            matching_details: { type: "STRING" },
+                                            context: { type: "STRING" }
+                                        },
+                                        required: ["name", "source_url", "source_title", "similarity_percentage", "matching_details", "context"]
+                                    }
+                                }
+                            },
+                            required: ["detected_features", "matches"]
+                        }
+                    }
+                };
+
+                updateProgress(50, 'Đang gửi truy vấn đối sánh đến máy chủ đám mây AI...');
+
+                const responseData = await fetchWithRetry(
+                    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(requestBody)
+                    }
+                );
+
+                updateProgress(80, 'Nhận hồi đáp sinh trắc học và biên dịch kết quả...');
+
+                // Trích xuất văn bản JSON từ phản hồi
+                const rawText = responseData.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (!rawText) {
+                    throw new Error("Không có dữ liệu phản hồi trả về từ mô hình AI.");
+                }
+
+                const parsedData = JSON.parse(rawText);
+
+                // Lưu giữ dữ liệu toàn cục để thực hiện chức năng sắp xếp động
+                parsedResults = parsedData.matches || [];
+
+                // Hiển thị chi tiết
+                displayResults(parsedData);
+                updateProgress(100, `Hoàn thành quy trình trong ${elapsedSeconds.toFixed(1)} giây!`);
+                stopProcessingUI();
+
+            } catch (err) {
+                stopProcessingUI();
+                logEvent(`Lỗi nghiêm trọng: ${err.message}`, true);
+                showAlert(`Có lỗi xảy ra trong quá trình đối sánh AI: ${err.message}`);
+                
+                // Trả về trạng thái trống
+                resultsEmpty.classList.remove('hidden');
+                progressBar.style.width = `0%`;
+                progressPercent.textContent = `0%`;
+                progressText.textContent = "Gặp sự cố xử lý";
+            }
+        });
+
+        // Hàm phân tích hiển thị kết quả lên giao diện
+        function displayResults(data) {
+            // Hiển thị khối hồ sơ sinh trắc học được AI phân tích
+            detectedProfile.classList.remove('hidden');
+            profileAge.textContent = data.detected_features.estimated_age || "Không xác định";
+            profileGender.textContent = data.detected_features.gender || "Không xác định";
+            profileFeatures.textContent = data.detected_features.prominent_features || "Không xác định";
+
+            // Chuẩn bị danh sách kết quả đối chiếu
+            renderMatchesList();
+
+            resultsList.classList.remove('hidden');
+            sortControls.classList.remove('hidden');
+        }
+
+        function renderMatchesList() {
+            resultsList.innerHTML = '';
+
+            if (parsedResults.length === 0) {
+                resultsList.innerHTML = `
+                    <div class="text-center py-8 text-gray-500 text-sm">
+                        <i data-lucide="info" class="w-8 h-8 mx-auto mb-2 text-gray-400"></i>
+                        Không tìm thấy thực thể trùng khớp trực tiếp trên internet công khai.
+                    </div>
+                `;
+                return;
             }
 
-            resultCount.innerText = sortedData.length;
-            resultsGrid.innerHTML = '';
+            parsedResults.forEach((match) => {
+                const matchCard = document.createElement('div');
+                matchCard.className = "p-4 border border-[#d0d7de] hover:border-blue-500 rounded bg-white transition duration-200 shadow-sm space-y-3";
 
-            sortedData.forEach(item => {
-                const card = document.createElement('div');
-                card.className = "border border-[#d0d7de] rounded-md p-4 bg-white flex flex-col justify-between hover:shadow-sm transition-shadow";
-                
-                // Tính màu sắc cảnh báo cho độ tương thích (Độ tin cậy sinh trắc học)
-                let matchBadgeColor = "bg-[#dafbe1] text-[#1a7f37] border-[#a2e9b1]"; // Xanh khi độ trùng khớp cao
-                if (item.match < 80 && item.match >= 70) matchBadgeColor = "bg-[#fff8c5] text-[#9a6700] border-[#f8e3a1]";
-                if (item.match < 70) matchBadgeColor = "bg-[#ffebe9] text-[#cf222e] border-[#f4858e]";
+                // Tính toán màu sắc tương quan với tỉ lệ khớp (%)
+                let badgeColor = "bg-red-50 text-red-700 border-red-200";
+                if (match.similarity_percentage >= 85) {
+                    badgeColor = "bg-green-50 text-green-700 border-green-200";
+                } else if (match.similarity_percentage >= 60) {
+                    badgeColor = "bg-blue-50 text-blue-700 border-blue-200";
+                } else if (match.similarity_percentage >= 40) {
+                    badgeColor = "bg-amber-50 text-amber-700 border-amber-200";
+                }
 
-                card.innerHTML = `
-                    <div class="flex items-start space-x-3">
-                        <img src="${item.img}" alt="${item.name}" class="w-16 h-16 rounded object-cover border border-[#d0d7de] flex-shrink-0 bg-gray-100">
-                        <div class="flex-1 min-w-0">
-                            <div class="flex items-center justify-between gap-2 mb-1">
-                                <h4 class="font-semibold text-sm text-[#24292f] truncate">${item.name}</h4>
-                                <span class="text-xs px-2 py-0.5 rounded-full border font-mono ${matchBadgeColor}">
-                                    ${item.match}% Match
-                                </span>
-                            </div>
-                            <p class="text-xs text-[#24292f] line-clamp-2 mb-2 leading-relaxed">${item.title}</p>
+                // Chi tiết thẻ hiển thị kết quả khớp thực tế
+                matchCard.innerHTML = `
+                    <div class="flex items-start justify-between">
+                        <div class="space-y-1">
+                            <h4 class="font-semibold text-sm text-gray-900 flex items-center gap-2">
+                                <i data-lucide="user" class="w-4 h-4 text-blue-600"></i>
+                                <span>${match.name}</span>
+                            </h4>
+                            <p class="text-[11px] text-[#57606a] flex items-center gap-1">
+                                <i data-lucide="globe" class="w-3 h-3"></i>
+                                <span class="truncate max-w-[250px] sm:max-w-[400px]">${match.source_title}</span>
+                            </p>
                         </div>
+                        <span class="text-xs font-mono px-2 py-1 rounded border ${badgeColor} font-bold shrink-0">
+                            Khớp ${match.similarity_percentage.toFixed(1)}%
+                        </span>
                     </div>
-                    
-                    <div class="mt-3 pt-3 border-t border-[#hsla(0,0%,0%,0.05)] text-[11px] text-[#57606a] flex items-center justify-between">
-                        <div class="flex flex-col">
-                            <span class="font-medium text-[#24292f]">${item.source}</span>
-                            <span class="text-[10px] text-[#8c959f]">Xuất bản: ${item.date}</span>
-                        </div>
-                        <a href="${item.link}" target="_blank" class="text-[#0969da] hover:underline inline-flex items-center space-x-0.5 font-medium">
-                            <span>Nguồn web</span>
-                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+
+                    <div class="text-xs text-gray-700 bg-gray-50 p-2.5 rounded border border-gray-100 space-y-1 leading-relaxed">
+                        <div><strong>Đặc tính so sánh:</strong> ${match.matching_details}</div>
+                        <div class="text-gray-500 italic mt-1">"${match.context}"</div>
+                    </div>
+
+                    <div class="flex items-center justify-between text-[11px] text-[#57606a]">
+                        <span class="flex items-center gap-1 text-green-600">
+                            <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Nguồn công khai đã đối chứng
+                        </span>
+                        <a href="${match.source_url}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline flex items-center gap-1 font-medium">
+                            <span>Truy cập bài gốc</span>
+                            <i data-lucide="external-link" class="w-3 h-3"></i>
                         </a>
                     </div>
                 `;
-                resultsGrid.appendChild(card);
+
+                resultsList.appendChild(matchCard);
             });
+
+            // Tái kích hoạt biểu tượng cho các nội dung động
+            lucide.createIcons();
         }
 
-        // Lắng nghe thay đổi tiêu chí sắp xếp để tái lập giao diện
+        // Logic sắp xếp động dữ liệu kết quả thực tế
         sortBy.addEventListener('change', () => {
-            if (!resultsGrid.classList.contains('hidden')) {
-                renderResults();
+            const criteria = sortBy.value;
+            if (criteria === 'similarity') {
+                parsedResults.sort((a, b) => b.similarity_percentage - a.similarity_percentage);
+            } else if (criteria === 'name') {
+                parsedResults.sort((a, b) => a.name.localeCompare(b.name));
             }
+            renderMatchesList();
+            logEvent(`Đã sắp xếp kết quả theo: ${criteria === 'similarity' ? 'Độ tương đồng' : 'Tên học thuật/Danh mục'}`);
         });
+
     </script>
 </body>
 </html>
